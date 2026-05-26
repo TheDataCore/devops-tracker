@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps Zero to Hero — 3-Week Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=IBM+Plex+Mono:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0d0f;
+    --bg2: #0f1419;
+    --bg3: #141a21;
+    --border: #1e2d3d;
+    --accent: #00d4aa;
+    --accent2: #f0a500;
+    --accent3: #e84393;
+    --text: #c9d1d9;
+    --muted: #4a5568;
+    --done: #1a3a2a;
+    --done-border: #00d4aa44;
+    --week1: #00d4aa;
+    --week2: #f0a500;
+    --week3: #e84393;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Scanline overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.03) 2px,
+      rgba(0,0,0,0.03) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* HEADER */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 40px 24px 32px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0,212,170,0.08), transparent);
+  }
+
+  .terminal-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 28px;
+    justify-content: center;
+  }
+  .terminal-bar span {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-r { background: #ff5f57; }
+  .dot-y { background: #febc2e; }
+  .dot-g { background: #28c840; }
+
+  h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    font-size: clamp(22px, 4vw, 42px);
+    color: var(--accent);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    line-height: 1.1;
+    margin-bottom: 8px;
+    text-shadow: 0 0 40px rgba(0,212,170,0.3);
+  }
+
+  .subtitle {
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+  }
+
+  /* OVERALL PROGRESS */
+  .overall-progress {
+    max-width: 640px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 12px;
+    letter-spacing: 1px;
+    color: var(--muted);
+  }
+
+  .progress-label strong {
+    font-family: 'Orbitron', sans-serif;
+    color: var(--accent);
+    font-size: 16px;
+  }
+
+  .progress-track {
+    height: 6px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 3px;
+    transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: 0 0 12px rgba(0,212,170,0.5);
+  }
+
+  /* COUNTDOWN */
+  .countdown-row {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 24px;
+  }
+
+  .count-block {
+    text-align: center;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 10px 16px;
+    border-radius: 6px;
+    min-width: 60px;
+  }
+  .count-num {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .count-lbl { font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
+
+  /* MAIN LAYOUT */
+  main {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 48px 16px 80px;
+  }
+
+  /* WEEK SECTION */
+  .week {
+    margin-bottom: 56px;
+  }
+
+  .week-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .week-badge {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  .w1 .week-badge { background: rgba(0,212,170,0.1); color: var(--week1); border: 1px solid rgba(0,212,170,0.3); }
+  .w2 .week-badge { background: rgba(240,165,0,0.1); color: var(--week2); border: 1px solid rgba(240,165,0,0.3); }
+  .w3 .week-badge { background: rgba(232,67,147,0.1); color: var(--week3); border: 1px solid rgba(232,67,147,0.3); }
+
+  .week-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(13px, 2vw, 17px);
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 2px;
+  }
+
+  .week-meta {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+
+  .week-progress-mini {
+    height: 3px;
+    width: 80px;
+    background: var(--bg3);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-left: auto;
+    margin-top: 4px;
+  }
+  .w1 .week-progress-mini .fill { background: var(--week1); }
+  .w2 .week-progress-mini .fill { background: var(--week2); }
+  .w3 .week-progress-mini .fill { background: var(--week3); }
+  .week-progress-mini .fill { height: 100%; border-radius: 2px; transition: width 0.4s; }
+
+  /* TOPIC GROUPS */
+  .topic-group {
+    margin-bottom: 20px;
+  }
+
+  .topic-label {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+    padding-left: 4px;
+  }
+
+  /* CHECKLIST ITEMS */
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .check-item::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: transparent;
+    transition: background 0.2s;
+    border-radius: 8px 0 0 8px;
+  }
+
+  .w1 .check-item::before { background: rgba(0,212,170,0.2); }
+  .w2 .check-item::before { background: rgba(240,165,0,0.2); }
+  .w3 .check-item::before { background: rgba(232,67,147,0.2); }
+
+  .check-item:hover {
+    border-color: rgba(255,255,255,0.1);
+    transform: translateX(2px);
+  }
+
+  .check-item.done {
+    background: var(--done);
+    border-color: var(--done-border);
+  }
+
+  .check-item.done .check-label { text-decoration: line-through; color: var(--muted); }
+
+  .checkbox {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    background: var(--bg);
+  }
+
+  .check-item.done .checkbox {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .checkmark {
+    display: none;
+    color: #000;
+    font-size: 12px;
+    font-weight: 900;
+  }
+
+  .check-item.done .checkmark { display: block; }
+
+  .check-content { flex: 1; min-width: 0; }
+
+  .check-label {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.4;
+    margin-bottom: 4px;
+  }
+
+  .check-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+  }
+
+  .tag {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-weight: 600;
+  }
+
+  .tag-video { background: rgba(0,100,255,0.15); color: #4a9eff; border: 1px solid rgba(74,158,255,0.25); }
+  .tag-practice { background: rgba(255,150,0,0.1); color: var(--accent2); border: 1px solid rgba(240,165,0,0.25); }
+  .tag-project { background: rgba(232,67,147,0.1); color: var(--accent3); border: 1px solid rgba(232,67,147,0.25); }
+  .tag-read { background: rgba(150,100,255,0.1); color: #a78bfa; border: 1px solid rgba(167,139,250,0.25); }
+  .tag-tool { background: rgba(0,212,170,0.08); color: var(--accent); border: 1px solid rgba(0,212,170,0.2); }
+
+  .check-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .res-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--accent);
+    text-decoration: none;
+    border: 1px solid rgba(0,212,170,0.2);
+    padding: 3px 10px;
+    border-radius: 4px;
+    background: rgba(0,212,170,0.04);
+    transition: all 0.15s;
+    letter-spacing: 0.5px;
+  }
+
+  .res-link:hover {
+    background: rgba(0,212,170,0.12);
+    border-color: rgba(0,212,170,0.5);
+    color: #fff;
+  }
+
+  .res-link.yt { color: #ff4e4e; border-color: rgba(255,78,78,0.2); background: rgba(255,78,78,0.04); }
+  .res-link.yt:hover { background: rgba(255,78,78,0.12); border-color: rgba(255,78,78,0.5); color: #fff; }
+  .res-link.gh { color: #e2e8f0; border-color: rgba(226,232,240,0.2); background: rgba(226,232,240,0.04); }
+  .res-link.gh:hover { background: rgba(226,232,240,0.12); border-color: rgba(226,232,240,0.5); }
+
+  /* SECTION DIVIDER */
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 32px 0 20px;
+  }
+  .section-divider span {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .section-divider::before, .section-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* PORTFOLIO SECTION */
+  .portfolio-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 12px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .proj-num {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--border);
+    flex-shrink: 0;
+    line-height: 1;
+    min-width: 32px;
+  }
+
+  .proj-body { flex: 1; }
+  .proj-title { font-size: 14px; color: var(--text); font-weight: 600; margin-bottom: 4px; }
+  .proj-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .proj-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 32px 24px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 2px;
+  }
+
+  footer a { color: var(--accent); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  /* RESET BUTTON */
+  .reset-btn {
+    background: transparent;
+    border: 1px solid var(--muted);
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .reset-btn:hover { border-color: var(--accent3); color: var(--accent3); }
+
+  /* STICKY TOP BAR */
+  .sticky-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,13,15,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .sticky-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  .sticky-bar .progress-track { flex: 1; height: 4px; }
+
+  @media (max-width: 600px) {
+    .week-meta { display: none; }
+    h1 { letter-spacing: 2px; }
+    .countdown-row { gap: 8px; }
+    .count-block { min-width: 50px; padding: 8px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="terminal-bar">
+    <div class="dot dot-r"></div>
+    <div class="dot dot-y"></div>
+    <div class="dot dot-g"></div>
+    <span>devops-tracker.sh — abhishek.veeramalla × 3-week sprint</span>
+  </div>
+  <h1>DevOps Zero → Hero</h1>
+  <div class="subtitle">3-Week Job-Ready Sprint Tracker</div>
+  <div class="overall-progress">
+    <div class="progress-label">
+      <span>OVERALL COMPLETION</span>
+      <strong id="overall-pct">0%</strong>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="overall-bar" style="width:0%"></div></div>
+    <div style="text-align:right; margin-top:6px;">
+      <span style="font-size:11px; color:var(--muted)" id="overall-count">0 / 0 tasks</span>
+    </div>
+  </div>
+  <div class="countdown-row">
+    <div class="count-block"><div class="count-num" id="cd-days">21</div><div class="count-lbl">Days Left</div></div>
+    <div class="count-block"><div class="count-num" id="cd-wk">3</div><div class="count-lbl">Week</div></div>
+    <div class="count-block"><div class="count-num" id="done-count">0</div><div class="count-lbl">Done</div></div>
+    <button class="reset-btn" onclick="resetAll()">↺ Reset</button>
+  </div>
+</header>
+
+<div class="sticky-bar">
+  <span class="sticky-title">Progress</span>
+  <div class="progress-track"><div class="progress-fill" id="sticky-bar" style="width:0%"></div></div>
+  <span style="font-size:11px; color:var(--accent); font-family:'Orbitron',sans-serif;" id="sticky-pct">0%</span>
+</div>
+
+<main>
+
+  <!-- ════════════════════════════════════════
+       WEEK 1
+  ═════════════════════════════════════════ -->
+  <section class="week w1">
+    <div class="week-header">
+      <div class="week-badge">Week 01</div>
+      <div>
+        <div class="week-title">Linux · Git · Networking · Shell Scripting</div>
+        <div style="font-size:11px; color:var(--muted); margin-top:2px;">Days 1–7 of playlist · Foundation Layer</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="week-meta" id="w1-meta">0%</div>
+        <div class="week-progress-mini"><div class="fill" id="w1-bar" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <!-- Playlist: Days 1-3 -->
+    <div class="topic-label">📺 Playlist: Fundamentals (Days 1–3)</div>
+
+    <div class="check-item" data-id="p1" onclick="toggle(this)">
+      <div class="checkbox"><div class="checkmark">✓</div></div>
+      <div class="check-content">
+        <div class="check-label">Day 1 — What is DevOps? Fundamentals & SDLC</div>
+        <div class="check-meta"><span class="tag tag-video">Video</span></div>
+        <div class="check-links">
+          <a class="res-link yt" href="https://www.youtube.com/watch?v=Ou9j73aWgyE&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa&index=1" target="_blank">▶ Day 1 – What is DevOps</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="check-item" data-id="p2" onclick="toggle(this)">
+      <div class="checkbox"><div class="checkmark">✓</div></div>
+      <div class="check-content">
+        <div class="check-label">Day 2 — SDLC Deep Dive (Software Development Lifecycle)</div>
+        <div class="check-meta"><span class="tag tag-video">Video</span></div>
+        <div class="check-links">
+          <a class="res-link yt" href="https://www.youtube.com/watch?v=Ou9j73aWgyE&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa&index=2" target="_blank">▶ Day 2 – SDLC</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="check-item" data-id="p3" onclick="toggle(this)">
+      <div class="checkbox"><div class="checkmark">✓</div></div>
+      <div class="check-content">
+        <div class="check-label">Day 3 & 4 — Virtual Machines, Hypervisors & Cloud (EC2 intro)</div>
+        <div class="check-meta"><span class="tag tag-video">Video</span></div>
+        <div class="check-links">
+          <a class="res-link yt" href="https://www.youtube.com/watch?v=Ou9j73aWgyE&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa&index=3" target="_blank">▶ Day 3 – VMs Part 1</a>
+          <a class="res-link yt" href="https://www.youtube.com/watch?v=Ou9j73aWgyE&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa&index=4" target="_blank">▶ Day 4 – VMs Part 2</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Linux -->
+    <div class="section-divider"><span>Linux & Shell Scripting</span></div>
+
+    <div class="check-item" data-id="p4" onclick="toggle(this)">
+      <div class="checkbox"><div class="checkmark">✓</div></div>
+      <div class="check-content">
+        <div class="check-label">Day 5 — Linux OS Basics & Connecting to EC2 via SSH</div>
+        <div class="check-meta"><span class="tag tag-video">Video</span></div>
+        <div class="check-links">
+          <a class="res-link yt" href="https://www.youtube.com/watch?v=Ou9j73aWgyE&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa&index=5" target="_blank">▶ Day 5 – Linux Basics</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="check-item" data-id="p5" onclick="toggle(this)">
+      <div class="checkbox"><div class="checkmark">✓</div></div>
+      <div class="check-content">
+        <div class="check-label">Day 6 — Linux OS Deep Dive & Shell Scripting Intro (bash, file ops, top, df)</div>
+        <div class="check-meta"><span class="tag tag-video">Video</span><span class="tag tag-practice">Hands-on</span></div>
+        <div class="check-links">
+          <a class="res-link yt" href="https://www.youtube.com/watch?v=Ou9j73aWgyE&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa&index=6" target="_blank">▶ Day 6 – Shell Scripting</a>
+          <a class="res-link" href="https://linuxcommand.org/tlcl.php" target="_blank">📖 Linux Command Line Book</a>
+          <a class="res-link" href="https://overthewire.org/wargames/bandit/" target="_blank">🎮 OverTheWire Bandit</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="check-item" data-id="p6" onclick="toggle(this)">
+      <div class="checkbox"><div class="checkmark">✓</div></div>
+      <div class="check-content">
+        <div class="check-label">Day 7 — Shell Scripting Project: AWS Resource Tracker Script</div>
+        <div class="check-meta"><span class="tag tag-video">Video</span><span class="tag tag-project">Project</span></div>
+        <div class="check-links">
+          <a class="res-link yt" href="https://www.youtube.com/watch?v=Ou9j73aWgyE&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa&index=7" target="_blank">▶ Day 7 – AWS Resource Tracker</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="check-item" data-id="p7" onclick="toggle(this)">
+      <div class="checkbox"><div class="checkmark">✓</div></div>
+      <div class="check-content">
+        <div class="check-label">Day 8 — Advanced Shell Scripting + GitHub Integration</div>
+        <div class="check-meta"><span class="tag tag-video">Video</span><span class="tag tag-practice">Hands-on</span></div>
+        <div class="check-links">
+          <a class="res-link yt" href="https://www.youtube.com/watch?v=Ou9j73aWgyE&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa&index=8" target="_blank">▶ Day 8 – Adv Shell Scripting</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Git -->
+    <div class="section-divider"><span>Git & Version Control</span></div>
+
+    <div class="check-item" data-id="p8" onclick="toggle(this)">
+      <div class="checkbox"><div class="checkmark">✓</div></div>
+      <div class="check-content">
+        <div class="check-label">Day 9 — Git & GitHub Fundamentals (init, add, commit, push)</div>
+        <div class="check-meta"><span class="tag tag-video">Video</span></div>
+        <div class="check-links">
+          <a class="res-link yt" href="https://www.youtube.com/watch?v=Ou9j73aWgyE&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa&index=9" target="_blank">▶ Day 9 – Git Basics</a>
+          <a class="res-link" href="https://learngitbranching.js.org/" target="_blank">🌿 Learn Git Branching</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="check-item" data-id="p9" onclick="toggle(this)">
+      <div class="checkbox"><div class="checkmark">✓</div></div>
+      <div class="check-content">
+        <div class="check-label">Day 10 — Git Branching: main, feature, release, hotfix branches</div>
+        <div class="check-meta"><span class="tag tag-video">Video</span></div>
+        <div class="check-links">
+          <a class="res-link yt" href="https://www.youtube.com/watch?v=Ou9j73aWgyE&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa&index=10" target="_blank">▶ Day 10 – Git Branching</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="check-item" data-id="p10" onclick="toggle(this)">
+      <div class="checkbox"><div class="checkmark">✓</div></div>
+      <div class="check-content">
+        <div class="check-label">Day 11 — Git for DevOps Engineers (merge, rebase, cherry-pick, interview Qs)</div>
+        <div class="check-meta"><span class="tag tag-video">Video</span></div>
+        <div class="check-links">
+          <a class="res-link yt" href="https://www.youtube.com/watch?v=Ou9j73aWgyE&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa&index=11" target="_blank">▶ Day 11 – Git for DevOps</a>
+          <a class="res-link" href="https://git-scm.com/book/en/v2" target="_blank">📖 Pro Git Book</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Networking -->
+    <div class="section-divider"><span>Networking & Practice</span></div>
+
+    <div class="check-item" data-id="net1" onclick="toggle(this)">
+      <div class="checkbox"><div class="checkmark">✓</div></div>
+      <div class="check-content">
+        <div class="check-label">Networking Crash Course — IP, DNS, HTTP/S, TCP/UDP, Firewalls, Ports</div>
+        <div class="check-meta"><span class="tag tag-video">Video</span><span class="tag tag-read">Reading</span></div>
+        <div class="check-links">
+          <a class="res-link yt" href="https://www.youtube.com/c/professormesser" target="_blank">▶ Prof. Messer CompTIA N+</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="check-item" data-id="wsl1" onclick="toggle(this)">
+      <div class="checkbox"><div class="checkmark">✓</div></div>
+      <div class="check-content">
+        <div class="check-label">✅ Practice: Install WSL2 / Ubuntu VM, run daily Linux commands</div>
+        <div class="check-meta"><span class="tag tag-practice">Hands-on</span><span class="tag tag-tool">Environment Setup</span></div>
+        <div class="check-links">
+          <a class="res-link" href="https://learn.microsoft.com/en-us/windows/wsl/install" target="_blank">🔧 WSL2 Install Guide</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="check-item" data-id="gh1" onclick="toggle(this)">
+      <div class="checkbox"><div class="checkmark">✓</div></div>
+      <div class="check-content">
+        <div class="check-label">✅ Week 1 Task: Create GitHub profile & push a shell script + README</div>
+        <div class="check-meta"><span class="tag tag-project">Portfolio</span></div>
+        <div class="check-links">
+          <a class="res-link gh" href="https://github.com" target="_blank">⬡ GitHub.com</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════
+       WEEK 2
+  ═════════════════════════════════════════ -->
+  <section class="week w2">
+    <div class="week-header">
+      <div class="week-badge">Week 02</div>
+      <div>
+        <div class="week-title">AWS · Terraform · CI/CD · Jenkins · Docker</div>
+        <div style="font-size:11px; color:var(--muted); margin-top:2px;">Days 12–26 of playlist · Automation Layer</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="week-meta" id="w2-meta">0%</div>
+        <div class="week-progress-mini"><div class="fill" id="w2-bar" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <!-- AWS Basics -->
+    <div class="topic-label">☁️ AWS Cloud Basics (Days 12–16)</div>
+
+    <div class="check-item" data-id="p11" onclick="toggle(this)">
+      <div class="checkbox"><div class="checkmark">✓</div></div>
+      <div class="check-content">
+        <div class="check-label">Days 12–13 — AWS EC2 Deep Dive, Security Groups & VPC Basics</div>
+        <div class="check-meta"><span class="tag tag-video">Video</span><span class="tag tag-practice">Hands-on</span></div>
+        <div class="check-links">
+          <a class="res-link yt" href="https://www.youtube.com/watch?v=Ou9j73aWgyE&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa&index=12" target="_blank">▶ Day 12 – AWS EC2</a>
+          <a class="res-link yt" href="https://www.youtube.com/watch?v=Ou9j73aWgyE&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa&index=13" target="_blank">▶ Day 13 – Networking</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="check-item" data-id="p12" onclick="toggle(this)">
+      <div class="checkbox"><div class="checkmark">✓</div></div>
+      <div class="check-content">
+        <div class="check-label">Days 14–15 — IAM (Users, Groups, Roles, Policies) & S3</div>
+        <div class="check-meta"><span class="tag tag-video">Video</span></div>
+        <div class="check-links">
+          <a class="res-link yt" href="https://www.youtube.com/watch?v=Ou9j73aWgyE&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa&index=14" target="_blank">▶ Day 14 – IAM</a>
+          <a class="res-link yt" href="https://www.youtube.com/watch?v=Ou9j73aWgyE&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa&index=15" target="_blank">▶ Day 15 – S3</a>
+          <a class="res-link" href="https://explore.skillbuilder.aws/learn/course/134" target="_blank">🎓 AWS Cloud Practitioner (Free)</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="check-item" data-id="p13" onclick="toggle(this)">
+      <div class="checkbox"><div class="checkmark">✓</div></div>
+      <div class="check-content">
+        <div class="check-label">Day 16 — AWS CodePipeline & CodeBuild (AWS native CI/CD)</div>
+        <div class="check-meta"><span class="tag tag-video">Video</span></div>
+        <div class="check-links">
+          <a class="res-link yt" href="https://www.youtube.com/watch?v=Ou9j73aWgyE&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa&index=16" target="_blank">▶ Day 16 – AWS CI/CD</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Terraform -->
+    <div class="section-divider"><span>Infrastructure as Code — Terraform</span></div>
+
+    <div class="check-item" data-id="p14" onclick="toggle(this)">
+      <div class="checkbox"><div class="checkmark">✓</div></div>
+      <div class="check-content">
+        <div class="check-label">Day 17 — Terraform Zero to Hero: Write Your First Terraform Project</div>
+        <div class="check-meta"><span class="tag tag-video">Video</span><span class="tag tag-project">Project</span></div>
+        <div class="check-links">
+          <a class="res-link yt" href="https://www.youtube.com/watch?v=Ou9j73aWgyE&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa&index=17" target="_blank">▶ Day 17 – Terraform</a>
+          <a class="res-link" href="https://developer.hashicorp.com/terraform/tutorials" target="_blank">🔧 HashiCorp Learn Terraform</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="check-item" data-id="tf2" onclick="toggle(this)">
+      <div class="checkbox"><div class="checkmark">✓</div></div>
+      <div class="check-content">
+        <div class="check-label">✅ Practice: Provision an EC2 instance using Terraform + push to GitHub</div>
+        <div class="check-meta"><span class="tag tag-practice">Hands-on</span><span class="tag tag-project">Portfolio</span></div>
+        <div class="check-links">
+          <a class="res-link yt" href="https://www.youtube.com/watch?v=Ou9j73aWgyE&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa&index=18" target="_blank">▶ Day 18 – Terraform Adv.</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Jenkins CI/CD -->
+    <div class="section-divider"><span>CI/CD — Jenkins</span></div>
+
+    <div class="check-item" data-id="p15" onclick="toggle(this)">
+      <div class="checkbox"><div class="checkmark">✓</div></div>
+      <div class="check-content">
+        <div class="check-label">Day 19 — Jenkins Zero to Hero: 3 Live Projects + Docker Agent + Interview Qs</div>
+        <div class="check-meta"><span class="tag tag-video">Video</span><span class="tag tag-project">Project</span></div>
+        <div class="check-links">
+          <a class="res-link yt" href="https://www.youtube.com/watch?v=zZfhAXfBvVA&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa&index=19" target="_blank">▶ Day 19 – Jenkins Zero to Hero</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="check-item" data-id="p16" onclick="toggle(this)">
+      <div class="checkbox"><div class="checkmark">✓</div></div>
+      <div class="check-content">
+        <div class="check-label">Days 20–21 — Jenkins Pipelines, Shared Libraries & Advanced Projects</div>
+        <div class="check-meta"><span class="tag tag-video">Video</span></div>
+        <div class="check-links">
+          <a class="res-link yt" href="https://www.youtube.com/watch?v=Ou9j73aWgyE&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa&index=20" target="_blank">▶ Day 20 – Jenkins Adv.</a>
+          <a class="res-link yt" href="https://www.youtube.com/watch?v=Ou9j73aWgyE&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa&index=21" target="_blank">▶ Day 21 – Jenkins Projects</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- GitHub Actions -->
+    <div class="section-divider"><span>CI/CD — GitHub Actions (Bonus)</span></div>
+
+    <div class="check-item" data-id="gha1" onclick="toggle(this)">
+      <div class="checkbox"><div class="checkmark">✓</div></div>
+      <div class="check-content">
+        <div class="check-label">GitHub Actions: Set up a pipeline that lints, builds and deploys</div>
+        <div class="check-meta"><span class="tag tag-practice">Hands-on</span><span class="tag tag-project">Portfolio</span></div>
+        <div class="check-links">
+          <a class="res-link" href="https://docs.github.com/en/actions/quickstart" target="_blank">📖 GitHub Actions Quickstart</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Docker -->
+    <div class="section-divider"><span>Containers — Docker</span></div>
+
+    <div class="check-item" data-id="p17" onclick="toggle(this)">
+      <div class="checkbox"><div class="checkmark">✓</div></div>
+      <div class="check-content">
+        <div class="check-label">Day 24 — Docker Zero to Hero Part 1: Basics, Dockerfile, Best Practices</div>
+        <div class="check-meta"><span class="tag tag-video">Video</span></div>
+        <div class="check-links">
+          <a class="res-link yt" href="https://www.youtube.com/watch?v=wodLpta-hoQ&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa&index=24" target="_blank">▶ Day 24 – Docker Part 1</a>
+          <a class="res-link" href="https://docs.docker.com/get-started/" target="_blank">📖 Docker Official Docs</a>
+          <a class="res-link" href="https://labs.play-with-docker.com/" target="_blank">🎮 Play with Docker</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="check-item" data-id="p18" onclick="toggle(this)">
+      <div class="checkbox"><div class="checkmark">✓</div></div>
+      <div class="check-content">
+        <div class="check-label">Days 25–26 — Docker Compose, Networking, Multi-Stage Builds & Projects</div>
+        <div class="check-meta"><span class="tag tag-video">Video</span><span class="tag tag-practice">Hands-on</span></div>
+        <div class="check-links">
+          <a class="res-link yt" href="https://www.youtube.com/watch?v=Ou9j73aWgyE&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa&index=25" target="_blank">▶ Day 25 – Docker Part 2</a>
+          <a class="res-link yt" href="https://www.youtube.com/watch?v=Ou9j73aWgyE&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa&index=26" target="_blank">▶ Day 26 – Docker Projects</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="check-item" data-id="dk3" onclick="toggle(this)">
+      <div class="checkbox"><div class="checkmark">✓</div></div>
+      <div class="check-content">
+        <div class="check-label">✅ Week 2 Project: Dockerize a Python/Node app + push to Docker Hub + CI/CD pipeline</div>
+        <div class="check-meta"><span class="tag tag-project">Portfolio</span></div>
+        <div class="check-links">
+          <a class="res-link" href="https://hub.docker.com/" target="_blank">🐳 Docker Hub</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════
+       WEEK 3
+  ═════════════════════════════════════════ -->
+  <section class="week w3">
+    <div class="week-header">
+      <div class="week-badge">Week 03</div>
+      <div>
+        <div class="week-title">Kubernetes · Ansible · Monitoring · Job Prep</div>
+        <div style="font-size:11px; color:var(--muted); margin-top:2px;">Days 27–59 of playlist · Orchestration & Career</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="week-meta" id="w3-meta">0%</div>
+        <div class="week-progress-mini"><div class="fill" id="w3-bar" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <!-- Ansible -->
+    <div class="topic-label">⚙️ Config Management — Ansible (Days 27–31)</div>
+
+    <div class="check-item" data-id="p19" onclick="toggle(this)">
+      <div class="checkbox"><div class="checkmark">✓</div></div>
+      <div class="check-content">
+        <div class="check-label">Days 27–28 — Ansible Zero to Hero: Playbooks, Roles, Inventory</div>
+        <div class="check-meta"><span class="tag tag-video">Video</span></div>
+        <div class="check-links">
+          <a class="res-link yt" href="https://www.youtube.com/watch?v=Ou9j73aWgyE&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa&index=27" target="_blank">▶ Day 27 – Ansible Basics</a>
+          <a class="res-link yt" href="https://www.youtube.com/watch?v=Ou9j73aWgyE&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa&index=28" target="_blank">▶ Day 28 – Ansible Projects</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kubernetes -->
+    <div class="section-divider"><span>Container Orchestration — Kubernetes</span></div>
+
+    <div class="check-item" data-id="p20" onclick="toggle(this)">
+      <div class="checkbox"><div class="checkmark">✓</div></div>
+      <div class="check-content">
+        <div class="check-label">Day 32 — Kubernetes Zero to Hero: Pods, Deployments, Services, ConfigMaps</div>
+        <div class="check-meta"><span class="tag tag-video">Video</span><span class="tag tag-project">Core</span></div>
+        <div class="check-links">
+          <a class="res-link yt" href="https://www.youtube.com/watch?v=Ou9j73aWgyE&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa&index=32" target="_blank">▶ Day 32 – Kubernetes</a>
+          <a class="res-link" href="https://kubernetes.io/docs/tutorials/kubernetes-basics/" target="_blank">📖 K8s Interactive Tutorial</a>
+          <a class="res-link" href="https://killercoda.com/playgrounds/scenario/kubernetes" target="_blank">🎮 KillerCoda K8s Playground</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="check-item" data-id="p21" onclick="toggle(this)">
+      <div class="checkbox"><div class="checkmark">✓</div></div>
+      <div class="check-content">
+        <div class="check-label">Days 33–36 — K8s Advanced: Ingress, HPA, RBAC, Persistent Volumes, Helm</div>
+        <div class="check-meta"><span class="tag tag-video">Video</span></div>
+        <div class="check-links">
+          <a class="res-link yt" href="https://www.youtube.com/watch?v=Ou9j73aWgyE&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa&index=33" target="_blank">▶ Day 33 – K8s Advanced</a>
+          <a class="res-link yt" href="https://www.youtube.com/watch?v=Ou9j73aWgyE&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa&index=36" target="_blank">▶ Day 36 – Helm Charts</a>
+          <a class="res-link" href="https://minikube.sigs.k8s.io/docs/start/" target="_blank">🔧 Minikube Local K8s</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="check-item" data-id="k3" onclick="toggle(this)">
+      <div class="checkbox"><div class="checkmark">✓</div></div>
+      <div class="check-content">
+        <div class="check-label">✅ Practice: Deploy your Docker app on Minikube + write a Helm chart</div>
+        <div class="check-meta"><span class="tag tag-practice">Hands-on</span><span class="tag tag-project">Portfolio</span></div>
+        <div class="check-links">
+          <a class="res-link" href="https://minikube.sigs.k8s.io/docs/start/" target="_blank">🔧 Minikube</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- GitOps -->
+    <div class="section-divider"><span>GitOps (Days 38–41)</span></div>
+
+    <div class="check-item" data-id="p22" onclick="toggle(this)">
+      <div class="checkbox"><div class="checkmark">✓</div></div>
+      <div class="check-content">
+        <div class="check-label">Days 38–41 — GitOps with ArgoCD: Continuous Delivery to Kubernetes</div>
+        <div class="check-meta"><span class="tag tag-video">Video</span></div>
+        <div class="check-links">
+          <a class="res-link yt" href="https://www.youtube.com/watch?v=Ou9j73aWgyE&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa&index=38" target="_blank">▶ Day 38 – ArgoCD</a>
+          <a class="res-link yt" href="https://www.youtube.com/watch?v=Ou9j73aWgyE&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa&index=41" target="_blank">▶ Day 41 – GitOps Projects</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monitoring -->
+    <div class="section-divider"><span>Monitoring & Observability</span></div>
+
+    <div class="check-item" data-id="p23" onclick="toggle(this)">
+      <div class="checkbox"><div class="checkmark">✓</div></div>
+      <div class="check-content">
+        <div class="check-label">Day 42 — Prometheus & Grafana Zero to Hero: Metrics, Dashboards, Alerts</div>
+        <div class="check-meta"><span class="tag tag-video">Video</span><span class="tag tag-project">Core</span></div>
+        <div class="check-links">
+          <a class="res-link yt" href="https://www.youtube.com/watch?v=Ou9j73aWgyE&list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa&index=42" target="_blank">▶ Day 42 – Prometheus & Grafana</a>
+          <a class="res-link yt" href="https://www.youtube.com/@TechWorldwithNana" target="_blank">▶ TechWorld with Nana</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Job Prep -->
+    <div class="section-divider"><span>Career & Job Prep</span></div>
+
+    <div class="check-item" data-id="cv1" onclick="toggle(this)">
+      <div class="checkbox"><div class="checkmark">✓</div></div>
+      <div class="check-content">
+        <div class="check-label">Build Resume: 1 page, list all 3 projects + tool stack (Linux, Git, Docker, Terraform, K8s, AWS)</div>
+        <div class="check-meta"><span class="tag tag-project">Career</span></div>
+      </div>
+    </div>
+
+    <div class="check-item" data-id="cv2" onclick="toggle(this)">
+      <div class="checkbox"><div class="checkmark">✓</div></div>
+      <div class="check-content">
+        <div class="check-label">Polish GitHub: All 3 portfolio projects with detailed READMEs and diagrams</div>
+        <div class="check-meta"><span class="tag tag-project">Portfolio</span></div>
+        <div class="check-links">
+          <a class="res-link gh" href="https://github.com" target="_blank">⬡ GitHub</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="check-item" data-id="cv3" onclick="toggle(this)">
+      <div class="checkbox"><div class="checkmark">✓</div></div>
+      <div class="check-content">
+        <div class="check-label">LinkedIn: Update profile, add all DevOps skills, connect with 10+ DevOps engineers</div>
+        <div class="check-meta"><span class="tag tag-project">Career</span></div>
+        <div class="check-links">
+          <a class="res-link" href="https://www.linkedin.com" target="_blank">🔗 LinkedIn</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="check-item" data-id="cv4" onclick="toggle(this)">
+      <div class="checkbox"><div class="checkmark">✓</div></div>
+      <div class="check-content">
+        <div class="check-label">Apply: Start submitting to Junior DevOps / SRE Intern / Cloud Support roles</div>
+        <div class="check-meta"><span class="tag tag-project">Career</span></div>
+        <div class="check-links">
+          <a class="res-link" href="https://wellfound.com/jobs" target="_blank">🚀 Wellfound (Startups)</a>
+          <a class="res-link" href="https://www.linkedin.com/jobs/" target="_blank">🔗 LinkedIn Jobs</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- PORTFOLIO PROJECTS -->
+  <div class="section-divider"><span>🏗️ Your 3 Portfolio Projects</span></div>
+
+  <div class="portfolio-card">
+    <div class="proj-num">01</div>
+    <div class="proj-body">
+      <div class="proj-title">Dockerized App with GitHub Actions CI/CD</div>
+      <div class="proj-desc">Build a Python or Node.js app → Dockerize it → push image to Docker Hub on every git push via GitHub Actions pipeline.</div>
+      <div class="proj-tags">
+        <span class="tag tag-tool">Docker</span>
+        <span class="tag tag-tool">GitHub Actions</span>
+        <span class="tag tag-tool">Python/Node</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="portfolio-card">
+    <div class="proj-num">02</div>
+    <div class="proj-body">
+      <div class="proj-title">AWS EC2 Provisioned via Terraform</div>
+      <div class="proj-desc">Write Terraform scripts to provision an EC2 instance with proper IAM, Security Groups, and VPC. Deploy your Docker app to it.</div>
+      <div class="proj-tags">
+        <span class="tag tag-tool">Terraform</span>
+        <span class="tag tag-tool">AWS EC2</span>
+        <span class="tag tag-tool">IAM & VPC</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="portfolio-card">
+    <div class="proj-num">03</div>
+    <div class="proj-body">
+      <div class="proj-title">Kubernetes Deployment with Prometheus Monitoring</div>
+      <div class="proj-desc">Deploy your app to Minikube (K8s), write a Helm chart, configure Prometheus scraping + Grafana dashboard with alerts.</div>
+      <div class="proj-tags">
+        <span class="tag tag-tool">Kubernetes</span>
+        <span class="tag tag-tool">Helm</span>
+        <span class="tag tag-tool">Prometheus</span>
+        <span class="tag tag-tool">Grafana</span>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <p>Built for your 3-week DevOps sprint 🚀 &nbsp;·&nbsp; Progress saves automatically in your browser</p>
+  <p style="margin-top:8px;">
+    <a href="https://www.youtube.com/playlist?list=PLdpzxOOAlwvIKMhk8WhzN1pYoJ1YU8Csa" target="_blank">▶ Full Playlist by Abhishek Veeramalla</a>
+    &nbsp;·&nbsp;
+    <a href="https://www.youtube.com/@TechWorldwithNana" target="_blank">TechWorld with Nana</a>
+    &nbsp;·&nbsp;
+    <a href="https://docs.claude.ai" target="_blank">Claude Docs</a>
+  </p>
+</footer>
+
+<script>
+  // ── Storage helpers ─────────────────────────────────
+  const KEY = 'devops_tracker_v1';
+  const DEADLINE_KEY = 'devops_start_date';
+
+  function load() {
+    try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; }
+  }
+
+  function save(state) {
+    localStorage.setItem(KEY, JSON.stringify(state));
+  }
+
+  // ── Toggle ───────────────────────────────────────────
+  function toggle(el) {
+    el.classList.toggle('done');
+    const state = load();
+    state[el.dataset.id] = el.classList.contains('done');
+    save(state);
+    updateAll();
+  }
+
+  // ── Update progress bars ─────────────────────────────
+  function updateAll() {
+    const allItems = document.querySelectorAll('.check-item');
+    const total = allItems.length;
+    const done = document.querySelectorAll('.check-item.done').length;
+
+    const pct = total ? Math.round((done / total) * 100) : 0;
+
+    document.getElementById('overall-pct').textContent = pct + '%';
+    document.getElementById('overall-bar').style.width = pct + '%';
+    document.getElementById('sticky-bar').style.width = pct + '%';
+    document.getElementById('sticky-pct').textContent = pct + '%';
+    document.getElementById('overall-count').textContent = `${done} / ${total} tasks`;
+    document.getElementById('done-count').textContent = done;
+
+    // Week-level progress
+    ['1','2','3'].forEach(w => {
+      const wItems = document.querySelectorAll(`.w${w} .check-item`);
+      const wDone = document.querySelectorAll(`.w${w} .check-item.done`).length;
+      const wPct = wItems.length ? Math.round((wDone / wItems.length) * 100) : 0;
+      document.getElementById(`w${w}-meta`).textContent = `${wPct}%`;
+      document.getElementById(`w${w}-bar`).style.width = wPct + '%';
+    });
+  }
+
+  // ── Restore state ───────────────────────────────────
+  function restore() {
+    const state = load();
+    document.querySelectorAll('.check-item').forEach(el => {
+      if (state[el.dataset.id]) el.classList.add('done');
+    });
+    updateAll();
+  }
+
+  // ── Reset ───────────────────────────────────────────
+  function resetAll() {
+    if (!confirm('Reset all progress? This cannot be undone.')) return;
+    localStorage.removeItem(KEY);
+    localStorage.removeItem(DEADLINE_KEY);
+    document.querySelectorAll('.check-item').forEach(el => el.classList.remove('done'));
+    initCountdown();
+    updateAll();
+  }
+
+  // ── Countdown ────────────────────────────────────────
+  function initCountdown() {
+    let start = localStorage.getItem(DEADLINE_KEY);
+    if (!start) {
+      start = Date.now();
+      localStorage.setItem(DEADLINE_KEY, start);
+    }
+    const end = Number(start) + 21 * 24 * 60 * 60 * 1000;
+
+    function tick() {
+      const now = Date.now();
+      const diff = Math.max(0, end - now);
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const week = Math.ceil((21 - days) / 7) || 1;
+      document.getElementById('cd-days').textContent = days;
+      document.getElementById('cd-wk').textContent = Math.min(week, 3);
+    }
+
+    tick();
+    setInterval(tick, 60000);
+  }
+
+  // ── Init ────────────────────────────────────────────
+  restore();
+  initCountdown();
+</script>
+</body>
+</html>
